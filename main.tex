@@ -1,0 +1,515 @@
+\documentclass[10pt,landscape]{article}
+\usepackage{multicol}
+\usepackage{calc}
+\usepackage{ifthen}
+\usepackage[landscape]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amsfonts}
+\usepackage{blkarray,booktabs}
+\usepackage{enumitem}
+\usepackage{graphicx}
+
+% To make this come out properly in landscape mode, do one of the following
+% 1.
+%  pdflatex latexsheet.tex
+%
+% 2.
+%  latex latexsheet.tex
+%  dvips -P pdf  -t landscape latexsheet.dvi
+%  ps2pdf latexsheet.ps
+
+
+% To Do:
+% \listoffigures \listoftables
+% \setcounter{secnumdepth}{0}
+
+
+% This sets page margins to .5 inch if using letter paper, and to 1cm
+% if using A4 paper. (This probably isn't strictly necessary.)
+% If using another size paper, use default 1cm margins.
+\ifthenelse{\lengthtest { \paperwidth = 11in}}
+	{ \geometry{top=0.1in,left=0.1in,right=0.1in,bottom=0.1in} }
+	{\ifthenelse{ \lengthtest{ \paperwidth = 297mm}}
+		{\geometry{top=1cm,left=1cm,right=1cm,bottom=1cm} }
+		{\geometry{top=1cm,left=1cm,right=1cm,bottom=1cm} }
+	}
+
+\DeclareMathOperator*{\Uniform}{Uniform}
+\DeclareMathOperator*{\bias}{bias}
+\DeclareMathOperator*{\rank}{rank}
+\DeclareMathOperator*{\Row}{Row}
+\DeclareMathOperator*{\Var}{Var}
+\DeclareMathOperator*{\Cov}{Cov}
+\DeclareMathOperator*{\trace}{Tr}
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclareMathOperator*{\supp}{supp}
+\newcommand{\innerprod}[2]{\langle #1, #2 \rangle}
+\newcommand{\deriv}[2]{\frac{\d #1}{\d #2}}
+\newcommand{\pderiv}[2]{\frac{\partial #1}{\partial #2}}
+% \newcommand{\pd}[2]{\frac{\partial{#1}}{\partial{#2}}}
+\newcommand{\wrap}[3]{\left#1#3\right#2}
+\newcommand*{\Scale}[2][4]{\scalebox{#1}{$#2$}}%
+\def\d{ \, \mathrm{d}}
+\def\P{\mathbb{P}}
+\def\E{\mathbb{E}}
+
+
+% Turn off header and footer
+\pagestyle{empty}
+ 
+
+% Redefine section commands to use less space
+\makeatletter
+\renewcommand{\section}{\@startsection{section}{1}{0mm}%
+                                {-1ex plus -.5ex minus -.2ex}%
+                                {0.5ex plus .2ex}%x
+                                {\normalfont\large\bfseries}}
+\renewcommand{\subsection}{\@startsection{subsection}{2}{0mm}%
+                                {-1explus -.5ex minus -.2ex}%
+                                {0.5ex plus .2ex}%
+                                {\normalfont\normalsize\bfseries}}
+\renewcommand{\subsubsection}{\@startsection{subsubsection}{3}{0mm}%
+                                {-1ex plus -.5ex minus -.2ex}%
+                                {1ex plus .2ex}%
+                                {\normalfont\small\bfseries}}
+\makeatother
+
+% Define BibTeX command
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+% Don't print section numbers
+\setcounter{secnumdepth}{0}
+
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0pt plus 0.5ex}
+
+
+% -----------------------------------------------------------------------
+
+\begin{document}
+
+\raggedright
+\footnotesize
+\begin{multicols}{3}
+
+
+% multicol parameters
+% These lengths are set only within the two main columns
+%\setlength{\columnseprule}{0.25pt}
+\setlength{\premulticols}{1pt}
+\setlength{\postmulticols}{1pt}
+\setlength{\multicolsep}{1pt}
+\setlength{\columnsep}{2pt}
+
+\begin{center}
+     \Large{\textbf{CS 189 Cheat Sheet}} \\
+\end{center}
+
+\section{$\boxed{\text{Classification}}$}
+
+
+\subsection{\textit{k}-Nearest Neighbors}
+kNNs are bounded by $\leq 2$x the Bayes optimal error, $N,k\to\infty, k/N\to0$.
+\newlength{\MyLen}
+\settowidth{\MyLen}{\texttt{letterpaper}/\texttt{a4paper} \ }
+\begin{tabular}{@{}p{\the\MyLen}%
+                @{}p{\linewidth-\the\MyLen}@{}}
+Edge Case & 2 pts w/ same features but diff classes.
+\\
+Robustness & Generalizes better to test data.
+\\
+Fit & Better training classification. \\
+Validation & Hold back data subset as validation set.
+\\
+& Train multiple times w/ diff hyperparams.
+\\
+& Choose what is best on validation set.
+\\
+Training Set & Used to learn model weights.\\
+Validation Set & Tunes hyperparameters (ex. $k\in$  $k$NN).\\
+Test Set & used as FINAL evaluation of model.\\
+Isocontour of $f$ & $L_{c}=\{x \mid f(x)=c\}$, with isovalue $c$.\\
+Isotropic Gaussian & Same amnt of variance in each direction.\\
+Anisotropic Gaussian & Allows diff amnts of variance along diff dirs.
+\end{tabular}
+
+\subsection{Perceptron}
+Model/rule: 1 if $\vec{X_i}\cdot \vec w\geq0$ elif $\vec{X_i}\cdot \vec w\leq0\implies$ -1.
+
+Loss: $L(z, y_{i})=0$ if $y_{i} z \geq 0$ else $-y_{i} z$, ($z$=pred, $y_i$=true ans).
+
+$R(w)=\displaystyle\sum_{i=1}^{n} L\left(X_{i} \cdot w, y_{i}\right)=\sum_{i \in V}-y_{i} X_{i} \cdot w$
+\\
+Gives some linear boundary; if data is linearly separable, correctly classifies all data in at most $O\left(\frac{r^2}{\gamma^2}\right)$ iterations.
+
+\subsection{Support Vector Machines}
+Hard-Margin: $\displaystyle\min_{\vec w, b}\|\vec w\|_2^2$, 
+\ s.t. $y_i(\vec w^\top\vec{x_i}-b)\geq1 \ \forall i$
+\\
+{\scriptsize{Fails w/ non-linearly sep. data. Margin size = $\frac{1}{\|w \|}$, Slab size = $\frac{2}{\|w\|}$}}
+\begin{tabular}{@{}ll@{}}
+Hyperplane & $H=\{x:w\cdot x=-\alpha\}$\\
+& flat, infinite, $\dim(d-1)$ plane\\
+$x, y\in H$ & $\vec w\cdot(y-x)=0, \vec w$ is normal vec of $H$.
+\\
+Support Vectors & Examples needed to find $f(\mathbf x)\in$ SVM. \\
+                   & Examples with non-0 weight $\alpha_k\in$ SVM. \\
+\end{tabular}
+
+\subsection{Soft-Margin}
+Allows misclassifications:
+$\min_{\vec w, b, \xi_i}\frac12\|\vec w\|^2+C\sum_{i=1}^n \xi_i$ s.t. \vspace{-0.1cm}\begin{align*}
+    y_i(\vec w^\top \vec{x_i}-b)\geq1-\xi_i, \ &\forall i \\
+    \xi_i\geq 0, \ &\forall i
+\end{align*}
+Small C: maximize margin, underfitting, less sensitive, more flat. \\
+Big C: minimize margin, overfitting, very sensitive, more sinuous.
+
+\subsection{Generative}
+Want to learn \textbf{everything} about data before you classify: \\
+the \textbf{priors} $\hat\pi_i=\Pr(Y=C_i)$ and \textbf{cond. dist} $\mathbb{P}(X|Y=C_i)$.
+\textbf{Posterior}: $\mathbb{P}(Y=C_i | X) = \frac{\mathbb{P}(X \mid Y = C_i) \cdot \mathbb{P}(Y=C_i)}{\mathbb{P}(X)}$ 
+\settowidth{\MyLen}{-\texttt{multicol} }
+\begin{tabular}{@{}p{\the\MyLen}%
+                @{}p{\linewidth-\the\MyLen}@{}}
+%\begin{tabular}{@{}ll@{}}
+Logistic Function: & $\frac{1}{1 + e^{-h(x)}}, $ where $h(x)$ is \textbf{linear} in terms of features. True in LDA but not QDA (where $h(x)$ is quadratic).\\
+GDA: & Assumes each class models a Gaussian distribution. \linebreak $Q_C(x) = -\frac{\|x - \mu_C\|^2}{2 \sigma_C^2} - d \ln \sigma_C + \ln \pi_C$ \\
+QDA:  &  Works with any number of classes; $\frac{d(d+3)}{2}+1$ params. \\
+LDA:  &  when variances are equal; $d+1$ params.\\
+\end{tabular}
+Isotropic:\\
+\quad QDA: $\widehat{\sigma }^2 = \frac{1}{dn} \sum_{i : y_i = C}^{} \left \| x_i - \widehat{\mu _c} \right \|^2$\\
+\quad LDA: $\widehat{\sigma }^2 = \frac{1}{dn} \sum_{C}^{}\sum_{i : y_i = C}^{} \left \| x_i - \widehat{\mu _c} \right \|^2$\\
+
+Anisotropic:\\
+\quad QDA: $\widehat{\Sigma}_c = \frac{1}{n_c} \sum_{i : y_i = C}^{} (X_i - \widehat{\mu _c})(X_i - \widehat{\mu _c})^\top$\\
+\quad LDA: $\widehat{\Sigma} = \frac{1}{n} \sum_{C}^{}\sum_{i : y_i = C}^{} (X_i - \widehat{\mu _c})(X_i - \widehat{\mu _c})^T$
+
+
+\subsection{Discriminative}
+Want to learn a \textit{few} things before trying to classify.\\
+Only tries to model $\P(Y|X)$ from training data.\\
+\textbf{Logistic Reg} (2 classes):
+For a training point, $P\left(Y=y_{i} \mid x\right)=p^{y_{i}}(1-p)^{1-y_{i}}$. Note that $p=s\left(w^{T} x\right)$ as given by our model of the posterior $P(Y=1 \mid x)$. MLE on this leads to the cross entropy loss function (which is convex!), namely
+$$
+L(w)=-\sum y_{i} \left(\ln p_{i}+\left(1-y_{i}\right) \ln \left(1-p_{i}\right)\right)
+$$
+
+Note: $P(Y=1 \mid x)=\frac{1}{1+\exp \left(-w^{T} x\right)}$; $s^{\prime}(\gamma) = s(\gamma)(1 - s(\gamma))$ \\
+Decision Boundary: of the form $w^{T} x>c_{1}$ thus must be linear. Though probability predictions are non-linear, actual boundary is linear. Log Reg always separates linearly separable points. \\
+\textbf{Softmax Reg:} logistic regression for multiple classes 
+
+
+
+\section{$\boxed{\text{Probability}}$}
+\textbf{Multivariate Gaussian PDF:}\\
+$f_{\mathbf{X}}\left(x_{1}, \ldots, x_{k}\right)=\frac{\exp \left(-\frac{1}{2}(\mathbf{x}-\boldsymbol{\mu})^{\mathrm{T}} \boldsymbol{\Sigma}^{-1}(\mathbf{x}-\boldsymbol{\mu})\right)}{\sqrt{(2 \pi)^{k}|\mathbf{\Sigma}|}}$
+\subsection{MLE (Maximum Likelihood Estimate)}
+We have $A, B, C, D$. 
+$P(A \mid B) > P(A \mid C) > P(A \mid D)\newline\implies B$ is the MLE of $A$.
+
+$\hat{\theta}_{MLE}(x) = \underset{\theta}{\text{arg max}} \ f(x \mid \theta) = \underset{\theta}{\text{arg max}} \ \mathcal{L}(\theta; x)$  \\
+Mean is unbiased; Variance is biased (usually underestimate)\\
+
+Predicts parameter which max the probability
+of the data.
+Implicitly assumes uniform prior
+\vspace{-0.25em}
+\subsection{MAP (Maximum a Posteriori)}
+We have $A, B, C, D$. 
+$\P(A \mid B) > \P(C \mid B) > \P(D \mid B)\newline\implies A$ is the MAP of $B$.
+
+$\hat{\theta}_{MAP} = \underset{\theta}{\text{arg max}} f(\theta \mid x) = \underset{\theta}{\text{arg max}} f(x \mid \theta) \cdot g(\theta)$ \\
+
+Predicts the parameter which maximizes the conditional
+probability of the parameter given the data.
+\\
+Should be used when you have the prior probabilities.
+
+MLE = MAP when all parameters have equal prior probability.
+\\
+The axis lengths of Gaussian Isocontours are $\sigma_i$ s.t. $\sigma^2(X)=\Var(X)$.
+Independent $\Longleftrightarrow$ uncorrelated (only for Multivariate Gaussian).
+
+
+
+
+\subsection{Bayesian Risk}
+$L$ (loss function) is symmetric: pick class with max posterior prob.
+\\
+$L$ is asymmetric: minimize $\E[L(\text{true class}, \text{prediction}) \mid \text{data}]$ or pick max loss-weighted posterior prob.
+\\
+
+The risk for $r$ is the expected loss over all values of $x, y$.
+{\small
+  \begin{align*}
+    R(r) &=\E[L(r(X), Y)] \\
+    &=\sum_{x}\wrap(){\sum_{c\in\{-1,1\}} L(r(x), c) P(Y=c \mid X=x)} P(X=x) \\
+    &=\sum_{c\in\{-1,1\}}\wrap(){ P(Y=c) \sum_{x} L(r(x), c) P(X=x \mid Y=c)}
+  \end{align*}
+}
+\[
+    R(\hat{y}=i \mid x)=\sum_{j=1}^{C} \lambda_{i j} P(Y=j \mid x)
+\]
+
+The Bayes decision rule aka Bayes classifier is the fn $r^{*}$ that minimizes functional $R(r)$. Assuming $L(z, y)=0$ for $z=y$:
+{\scriptsize \[
+r^{*}(x)=\left\{\begin{aligned}
+1 & \text { if } L(-1,1) P(Y=1 \mid X=x)>L(1,-1) P(Y=-1 \mid X=x) \\
+-1 & \text { otherwise }
+\end{aligned}\right.
+\]}
+
+
+%---------------------------------------------------------------------------
+% \newcommand{\FontCmd}[3]{\PBS\verb!\#1{!\textit{text}\verb!}!  \> %
+%                          \verb!{\#2 !\textit{text}\verb!}! \> %
+%                          \#1{#3}}
+% \begin{tabular}{@{}l@{}l@{}l@{}}
+% \textit{Command} & \textit{Declaration} & \textit{Effect} \\
+% \verb!\textrm{!\textit{text}\verb!}!                    & %
+%         \verb!{\rmfamily !\textit{text}\verb!}!               & %
+%         \textrm{Roman family} \\
+% \verb!\textsf{!\textit{text}\verb!}!                    & %
+%         \verb!{\sffamily !\textit{text}\verb!}!               & %
+%         \textsf{Sans serif family} \\
+% \verb!\texttt{!\textit{text}\verb!}!                    & %
+%         \verb!{\ttfamily !\textit{text}\verb!}!               & %
+%         \texttt{Typewriter family} \\
+% \verb!\textmd{!\textit{text}\verb!}!                    & %
+%         \verb!{\mdseries !\textit{text}\verb!}!               & %
+%         \textmd{Medium series} \\
+% \verb!\textbf{!\textit{text}\verb!}!                    & %
+%         \verb!{\bfseries !\textit{text}\verb!}!               & %
+%         \textbf{Bold series} \\
+% \verb!\textup{!\textit{text}\verb!}!                    & %
+%         \verb!{\upshape !\textit{text}\verb!}!               & %
+%         \textup{Upright shape} \\
+% \verb!\textit{!\textit{text}\verb!}!                    & %
+%         \verb!{\itshape !\textit{text}\verb!}!               & %
+%         \textit{Italic shape} \\
+% \verb!\textsl{!\textit{text}\verb!}!                    & %
+%         \verb!{\slshape !\textit{text}\verb!}!               & %
+%         \textsl{Slanted shape} \\
+% \verb!\textsc{!\textit{text}\verb!}!                    & %
+%         \verb!{\scshape !\textit{text}\verb!}!               & %
+%         \textsc{Small Caps shape} \\
+% \verb!\emph{!\textit{text}\verb!}!                      & %
+%         \verb!{\em !\textit{text}\verb!}!               & %
+%         \emph{Emphasized} \\
+% \verb!\textnormal{!\textit{text}\verb!}!                & %
+%         \verb!{\normalfont !\textit{text}\verb!}!       & %
+%         \textnormal{Document font} \\
+% \verb!\underline{!\textit{text}\verb!}!                 & %
+%                                                         & %
+%         \underline{Underline}
+% \end{tabular}
+
+\section{$\boxed{\text{Regression Methods}}$}
+Model: $y = Xw$, Loss Function: least squares, $n \in N(X)$
+\vspace{-0.5cm}
+\begin{center}
+    \begin{tabular}{||c c c||} 
+         \hline
+         Name & Objective & Solution \\
+         \hline
+         \rule{0pt}{3ex}
+         OLS & {\scriptsize $\frac1n\|Y-Xw\|_2^2$} & {\scriptsize $w^\ast=(X^\top X)^{\dagger} X^\top y \in X^{\dagger}y + n$} \\[0.4em] 
+         \hline
+         \rule{0pt}{3ex}
+         Ridge & {\scriptsize $\frac1n\|Y-Xw\|_2^2+\lambda \| w \|_2^2$} & {\scriptsize $w^\ast=(X^\top X + n\lambda I)^{-1} X^\top y$} \\[0.4em] 
+         \hline
+         \rule{0pt}{3ex}
+         LASSO & {\scriptsize $\frac1n\|Y-Xw\|_2^2+\lambda \| w \|_1$} & No closed form \\ [1ex] 
+         \hline
+    \end{tabular}
+\end{center}
+
+
+\section{$\boxed{\text{Linear Algebra}}$}
+\subsection{Matrix Calculus}
+
+\settowidth{\MyLen}{\texttt{.begin.verbatim..} }
+\begin{tabular}{@{}p{\linewidth/2}%
+                @{}p{\linewidth/2}@{}}
+$\nabla_{\vec x}{\vec w^\top \vec x} = \wrap(){\pderiv{\vec w^\top \vec x}{\vec x}}^\top = \vec{w}$ & $\nabla_{\vec x}{(\vec w^\top A\vec x)}= A^{\top}\vec w$ \\
+\hrule&\hrule\\
+$\nabla_{A}{\vec w^\top A\vec x}=\vec w\vec x^\top$ & $\nabla_{\vec x}{(\vec x^\top A\vec x)} = (A+A^\top)\vec x$ \\
+\hrule&\hrule\\
+$\nabla_{\vec x}^2{(\vec x^\top A\vec x)} = A+A^\top$ & $\nabla_{\vec x}{(\alpha \vec{y})} = (\nabla_{\vec x}{\alpha})\vec{y}^{\top} + \alpha \nabla_{\vec x}{\vec y}$ \\
+\hrule&\hrule
+\\
+$\nabla_{\vec x}{\vec{f}(\vec y)} = (\nabla_{\vec x}{\vec y})(\nabla_{\vec y}{\vec{f}(\vec y)})$ & $\nabla_{\vec x}(\vec{y} \cdot \vec{z}) = (\nabla_{\vec x}{\vec y})\vec{z}+(\nabla_{\vec x}{\vec z})\vec{y}$ \\
+\hrule & \hrule
+\\
+$\nabla_{\vec x}{g(\vec{y})} = (\nabla_{\vec x}{\vec y})(\nabla_{\vec y}{g(\vec y)})$ & $\text{Placeholder}$ \\
+\hrule&\hrule
+\end{tabular} \vspace{-0.1cm}
+$$\nabla_{\vec{y}} (\vec{y} - A \vec{x})^{\top} W(\vec{y} - A \vec{x}) = 2W(\vec{y} - A \vec{x})$$ \\
+\hrule
+$$\nabla_{\vec{x}} (\vec{y} - A \vec{x})^{\top} W(\vec{y} - A \vec{x}) = -2A^{\top}W(\vec{y} - A \vec{x})$$  \\
+\hrule
+$$\nabla_{\vec w} \wrap(){\|X\vec w-\vec y\|_2^2+\lambda\|\vec w\|_2^2} = 2X^\top X\vec w-2X^\top \vec y+2\lambda\vec w$$
+\hrule
+
+\subsection{Matrix $A$ is Positive Semi-Definiteness iff}
+\begin{enumerate}[label=(\alph*)]
+    \item $\forall \vec x \neq \vec{0} \in \mathbb{R}^{n}, \vec x^{\top} A \vec x \geq 0$.
+    \item All eigenvalues of $A$ are non-negative.
+    \item $\exists$ unique matrix $L \in \mathbb{R}^{n \times n}$ such that $A=L L^{\top}$ (Cholesky decomposition).
+\end{enumerate}
+All diagonal entries of A are non-negative and $\trace(A)\geq0$. \\
+Sum of all the entries $\geq0$.\\
+$M\succeq0, N\succeq0\implies M-N\succeq0\iff\lambda_{\min}(M)>\lambda_{\max}(N)$.\\
+$A = A^{\frac{1}{2}}A^{\frac{1}{2}}$, $A^{\frac{1}{2}} = U \Lambda^{\frac{1}{2}}U^{\top}$  \\
+A function is convex iff Hessian is PSD. Strict Convexity: $(\forall 0<t<1), f(tx_1+(1-t)x_2)<tf(x_1)+(1-t)f(x_2)$
+
+
+\subsection{Covariance Matrix}
+$\begin{aligned}[t]\Sigma &=\frac{1}{n}\hat{X}^{\top}X = 
+%\begin{blockarray}{cc}
+%\begin{block}{[cc]}
+%\Var(x) & \Cov(x, y) \\
+%\Cov(x, y) & \Var(y)\\
+%\end{block}
+%\end{blockarray}\vspace*{-1.25\baselineskip}
+{\tiny\begin{bmatrix}
+\Var(X_1) & \Cov(X_1, X_2) & \cdots &  \Cov(X_1, X_d) \\
+\Cov(X_2, X_1) & \Var(X_2) & \cdots & \Cov(X_2, X_d) \\
+\vdots & \vdots & \ddots & \vdots \\
+\Cov(X_d, X_1) & \Cov(X_d, X_2) & \cdots & \Var(X_d)
+\end{bmatrix}} \\
+&= \E[(X - \mu)^{\top}(X - \mu)] \text{ where } X \in \mathbb{R}^{n \times d}
+\end{aligned}$
+\\ \vspace{0.1cm}
+ Symmetric, PSD $\implies\exists \Sigma=V\Lambda V^\top$ by Spectral Theorem.
+PD $\implies$ symmetric in this class. Eigenvectors are orthogonal directions along which points are uncorrelated. $\Sigma^{-1} = V \Lambda^{-1}V^{\top} = \sum_i \frac{1}{\Lambda_{ii}}v_iv_i^{\top}$
+
+\subsection{Spectral Theorem}
+All real+symmetric $n \times n$ matrix has real eigenvalues and $n$ eigenvectors that are mutually orthogonal: $v_{i}^{\top} v_{j}=0 \quad  \forall i \neq j$.
+
+\subsection{Norm Ball}
+$\ell_0$ and $\ell_1$ encourage sparsity (more than $\ell_2$).
+\includegraphics[scale=0.2]{norms.png}
+
+
+% \newpage
+% TODO Rm above
+ 
+\subsection{Fundamental Theorem of Linear Algebra}
+\includegraphics[scale=0.10]{strang.png}
+$(N(A)^{\perp} = R(A^{\top})) \oplus (N(A) = R(A^{\top})^{\perp}) = \mathbb{R}^n$ \\
+    $(N(A^{\top})^{\perp} = R(A)) \oplus (N(A^{\top}) = R(A)^{\perp}) = \mathbb{R}^m$ \\
+Rank-nullity Theorem: dim($R(A)$) + dim($N(A)$) = $n$\\
+
+Jensen's Inequality: If $f(x)$ is strictly convex, $\E[f(x)]>f(\E[x])$. \\
+
+$\dim(\Row(X))=\dim(R(X^\top))=\rank(X^\top)=\rank(X)$.
+
+\section{$\boxed{\text{Update Rule}}$}
+
+% \subsection{Font face}
+\settowidth{\MyLen}{\texttt{.begin.verbatim..} }
+\begin{tabular}{@{}p{\the\MyLen}%
+                @{}p{\linewidth-\the\MyLen}@{}}
+Gradient Descent: & $w \leftarrow w - \epsilon \nabla_w J(w) $ \\
+Logistic Reg:& $w \leftarrow w + \epsilon X^{\top}(y - s(Xw))$ \\
+\hrule&\hrule\\
+Newton's Method: & $w \leftarrow w - (\nabla^2_w J(w))^{-1} \nabla_w J(w)$ \\
+*** Note: & If $J$ quadratic, Newton's method only needs one step to find exact solution. Newton's Method doesn't work for most nonsmooth functions, and is generally faster than SGD. \\
+\hrule&\hrule\\
+Stochastic GD: & $w \leftarrow w - \epsilon \nabla_w J(w)_i$ for some $i \in U([1, \dots, n])$ \\
+Logistic Reg: & $w \leftarrow w + \epsilon (y_i - s(X_i \cdot w))X_i$ \\
+\hrule&\hrule
+\end{tabular}
+
+
+
+\section{$\boxed{\text{Cost Functions}}$}
+\settowidth{\MyLen}{\texttt{.pagebreak} }
+\begin{tabular}{@{}p{\the\MyLen}%
+                @{}p{\linewidth-\the\MyLen}@{}}
+General:         &  $J = \sum_{i=1}^n L(X_i \cdot w, y_i)$ \\
+Linear:      &  $J = \sum_{i=1}^n (X_i \cdot w + \alpha - y_i)^2 = \|Xw - y\|_2^2$ \\
+Logistic:        &  {\scriptsize $J = -\sum_{i=1}^n \left(y_i \ln s(X_i \cdot w) + (1-y_i) \ln(1 - s(X_i \cdot w))\right)$} \\
+Weight LS:  & $J = \sum_{i=1}^n w_i (X_i \cdot w - y_i)^2 = (Xw - y)^{\top} \Omega (Xw-y)$ \\
+\end{tabular}
+
+
+\section{$\boxed{\text{ROC Curve}}$}
+
+\includegraphics[width=\linewidth]{ROC.png}
+
+\section{$\boxed{\text{Design Matrix}}$}
+\settowidth{\MyLen}{\texttt{.begin.verbatim..} }
+\begin{tabular}{@{}p{\the\MyLen}%
+                @{}p{\linewidth-\the\MyLen}@{}}
+Centering:         &  subtracting $\mu^\top$ from each row of $X$: $X \xrightarrow{}\dot X$\\
+Decorrelating: & Applying rotation $Z = \dot X V$ where $\Var(X) = V \Lambda V^\top$. Covariance matrix of $Z$ is $\Lambda$ (diagonal)\\
+Sphering: & $W = \dot X \Var(X)^{-1/2}$ ($\Sigma^{-1/2}$ maps ellipsoids to spheres)\\
+Whitening: & Perform centering, and then sphering \\
+\end{tabular}
+
+\section{$\boxed{\text{Bias-Variance Tradeoff}}$}
+Statistical Bias: $\E[\hat\theta-\theta]=\E[\hat\theta]-\theta$.
+
+\textbf{Bias}: error due to inability of hypothesis $h$ to fit $g$ perfectly e.g., fitting quadratic $g$ with a linear $h$\\
+\textbf{Variance}: error due to fitting random noise in data
+e.g., we fit linear $g$ with a linear $h$, yet $h \neq g$.
+
+Overfitting: Low Bias, High Variance \\
+Underfitting: High Bias, Low Variance.
+
+Adding a feature usually increases variance [don’t add a feature unless it reduces bias more]. Adding a feature results in a non-increasing bias. 
+
+Forward/Backward stepwise selection aren't guaranteed to find optimal features. Backward stepwise selection looks at $d^{\prime}-1$ features at a time, where $d^{\prime}$ is current num of features (one at a time). Use Forward selection if we think few features important, Backward selection if many features important.
+
+higher residuals $\implies$ higher bias\\
+higher complexity $\implies$ higher variance
+
+$\Var(h(z)) = E\left[(h(z)-E[h(z)])^{2}\right] \approx \sigma^2\frac d n$
+
+\textbf{Bias-Variance Decomposition:} \\
+$\begin{aligned}[t] \text{Model Risk} &=\E[L(h(z), \gamma)]
+=\E[(h(z)-\gamma)^2] \\
+&=\underbrace{(\mathrm{E}[h(z)]-g(z))^{2}}_{\text {bias}^{2} \text { of method }}+\underbrace{\operatorname{Var}(h(z))}_{\text {variance of method }}+\underbrace{\operatorname{Var}(\epsilon)}_{\text {irreducible error }}
+\end{aligned}$ where $\mathrm{E}[\gamma]=g(z) ; \operatorname{Var}(\gamma)=\operatorname{Var}(\epsilon)$.
+
+Note: the model determines Bias-Variance Tradeoff, not the algorithm used to solve the model/optimization problem.
+
+\includegraphics[width=\linewidth]{Bias-Variance.png}
+
+% todo add bias var tradeoff diagarm
+
+
+\section{$\boxed{\text{Isocontour/Voronoi Diagrams}}$}
+\begin{tabular}{@{}p{\linewidth/2-0.25cm}@{\hskip 0.5cm}@{}p{\linewidth/2-0.25cm}@{}}
+\includegraphics[width=\linewidth/6*5]{LDA.png} & \includegraphics[width=\linewidth/8*7]{QDA_1.png} \\
+\includegraphics[width=\linewidth/6*5]{Voronoi_LDA.png} & \includegraphics[width=\linewidth/6*5]{Voronoi_QDA.png} \\
+\includegraphics[width=\linewidth/8*7]{LDA_Isocontours.png} & \includegraphics[width=\linewidth/8*7]{QDA_Isocontours.png} \\
+ \textbf{LDA:} same variance; decision boundary is linear & \textbf{QDA:} different variance; decision boundary is curved towards class(es) w/ lower variance 
+\end{tabular} \vspace{0.5em} 
+\hrule \vspace{0.5em}
+ \includegraphics[width=\linewidth]{Quadratic_Isosurface.png}
+ Quadratic Form: $x^{\top}A^{-2}x = \| A^{-1}x\|_2^2$ is an ellipsoid with axes $v_1, v_2, \dots v_n$ (eigenvectors of $A$) and radii $\lambda_1, \lambda_2, \dots, \lambda_n$ (eigenvalues of $A$). Note that $A > 0$.
+ 
+ Gaussian with covariance matrix $\Sigma = \frac{1}{n} \hat{X}^{\top} \hat{X}$ isocontours with radii of length $\sqrt{\lambda_i(\Sigma)} = \sigma_i(X)$
+
+\section{$\boxed{\text{Miscellaneous}}$}
+\begin{tabular}{@{}p{\the\MyLen}%
+                @{}p{\linewidth-\the\MyLen}@{}}
+Bayes vs. GDA & Bayes uses true mean/variance, while GDA uses sample mean/variance. True mean/variance equal $\not \Rightarrow$ Sample mean/variance equal\\
+\hrule&\hrule\\
+Cauchy-Schwarz &  $|\langle x, y \rangle | \leq \| x \| \cdot \| y \|$  \\
+\hrule&\hrule\\
+\text{Sigmoid Function}: \linebreak
+$s(\gamma) = \frac{1}{1 + e^{-\gamma}}$& Graph:
+\linebreak \includegraphics[width=\linewidth/2]{Sigmoid.png} \\
+\hrule&\hrule\\Unique Optimum & Only ridge regression has one unique optimum (not Least Squares, Lasso, or Logistic).
+\end{tabular}
+
+\end{multicols}
+\end{document}
