@@ -131,8 +131,8 @@ Training Set & Used to learn model weights.\\
 Validation Set & Tunes hyperparameters (ex. $k\in$  $k$NN).\\
 Test Set & used as FINAL evaluation of model.\\
 Isocontour of $f$ & $L_{c}=\{x \mid f(x)=c\}$, with isovalue $c$.\\
-Isotropic Gaussian & Same amnt of variance in each direction.\\
-Anisotropic Gaussian & Allows diff amnts of variance along diff dirs.
+Isotropic Gaussian & Same var in ea dir: $\Sigma=cI$.\\
+Anisotropic Gaussian & Allows diff amnts of var along diff dirs, $\Sigma\succ 0$.
 \end{tabular}
 
 \subsection{Perceptron}
@@ -161,11 +161,13 @@ Support Vectors & Examples needed to find $f(\mathbf x)\in$ SVM. \\
 \subsection{Soft-Margin}
 Allows misclassifications:
 $\min_{\vec w, b, \xi_i}\frac12\|\vec w\|^2+C\sum_{i=1}^n \xi_i$ s.t. \vspace{-0.1cm}\begin{align*}
-    y_i(\vec w^\top \vec{x_i}-b)\geq1-\xi_i, \ &\forall i \\
-    \xi_i\geq 0, \ &\forall i
+    y_i(\vec w^\top \vec{x_i}-b)\geq1-\xi_i, \ \ \forall i;\quad
+    \xi_i\geq 0, \quad\forall i
 \end{align*}
 Small C: maximize margin, underfitting, less sensitive, more flat. \\
 Big C: minimize margin, overfitting, very sensitive, more sinuous.
+\\
+$C\to\infty\implies$ Soft-Margin $\to$ Hard-Margin. Note $C\geq0$.
 
 \subsection{Generative}
 Want to learn \textbf{everything} about data before you classify: \\
@@ -209,7 +211,7 @@ Decision Boundary: of the form $w^{T} x>c_{1}$ thus must be linear. Though proba
 $f_{\mathbf{X}}\left(x_{1}, \ldots, x_{k}\right)=\frac{\exp \left(-\frac{1}{2}(\mathbf{x}-\boldsymbol{\mu})^{\mathrm{T}} \boldsymbol{\Sigma}^{-1}(\mathbf{x}-\boldsymbol{\mu})\right)}{\sqrt{(2 \pi)^{k}|\mathbf{\Sigma}|}}$
 \subsection{MLE (Maximum Likelihood Estimate)}
 We have $A, B, C, D$. 
-$P(A \mid B) > P(A \mid C) > P(A \mid D)\newline\implies B$ is the MLE of $A$.
+$P(A \mid B) > P(A \mid C) > P(A \mid D)\newline\implies B$ is the MLE of $A$. MLE Estimate of Anisotropic can be PSD.
 
 $\hat{\theta}_{MLE}(x) = \underset{\theta}{\text{arg max}} \ f(x \mid \theta) = \underset{\theta}{\text{arg max}} \ \mathcal{L}(\theta; x)$  \\
 Mean is unbiased; Variance is biased (usually underestimate)\\
@@ -243,7 +245,7 @@ $L$ (loss function) is symmetric: pick class with max posterior prob.
 $L$ is asymmetric: minimize $\E[L(\text{true class}, \text{prediction}) \mid \text{data}]$ or pick max loss-weighted posterior prob.
 \\
 
-The risk for $r$ is the expected loss over all values of $x, y$.
+The risk for $r$ is the expected loss over all values of $x, y$. Equals to 0 when class distros don't overlap or prior prob for one class is 1.
 {\small
   \begin{align*}
     R(r) &=\E[L(r(X), Y)] \\
@@ -345,7 +347,7 @@ $\nabla_{\vec x}^2{(\vec x^\top A\vec x)} = A+A^\top$ & $\nabla_{\vec x}{(\alpha
 $\nabla_{\vec x}{\vec{f}(\vec y)} = (\nabla_{\vec x}{\vec y})(\nabla_{\vec y}{\vec{f}(\vec y)})$ & $\nabla_{\vec x}(\vec{y} \cdot \vec{z}) = (\nabla_{\vec x}{\vec y})\vec{z}+(\nabla_{\vec x}{\vec z})\vec{y}$ \\
 \hrule & \hrule
 \\
-$\nabla_{\vec x}{g(\vec{y})} = (\nabla_{\vec x}{\vec y})(\nabla_{\vec y}{g(\vec y)})$ & $\text{Placeholder}$ \\
+$\nabla_{\vec x}{C\vec y(\vec{x})} = (\nabla_{\vec x}{\vec y(\vec x)})C^\top$ & $\pderiv{\|\vec x\|_2^2}{\vec x}=\pderiv{(\vec x^\top\vec x)}{\vec x}=2\vec x$ \\
 \hrule&\hrule
 \end{tabular} \vspace{-0.1cm}
 $$\nabla_{\vec{y}} (\vec{y} - A \vec{x})^{\top} W(\vec{y} - A \vec{x}) = 2W(\vec{y} - A \vec{x})$$ \\
@@ -355,7 +357,7 @@ $$\nabla_{\vec{x}} (\vec{y} - A \vec{x})^{\top} W(\vec{y} - A \vec{x}) = -2A^{\t
 $$\nabla_{\vec w} \wrap(){\|X\vec w-\vec y\|_2^2+\lambda\|\vec w\|_2^2} = 2X^\top X\vec w-2X^\top \vec y+2\lambda\vec w$$
 \hrule
 
-\subsection{Matrix $A$ is Positive Semi-Definiteness iff}
+\subsection{Matrix $A$ is \underline{Positive Semi-Definite} iff}
 \begin{enumerate}[label=(\alph*)]
     \item $\forall \vec x \neq \vec{0} \in \mathbb{R}^{n}, \vec x^{\top} A \vec x \geq 0$.
     \item All eigenvalues of $A$ are non-negative.
@@ -382,13 +384,13 @@ $\begin{aligned}[t]\Sigma &=\frac{1}{n}\hat{X}^{\top}X =
 \vdots & \vdots & \ddots & \vdots \\
 \Cov(X_d, X_1) & \Cov(X_d, X_2) & \cdots & \Var(X_d)
 \end{bmatrix}} \\
-&= \E[(X - \mu)^{\top}(X - \mu)] \text{ where } X \in \mathbb{R}^{n \times d}
+&= \E[(X - \mu)^{\top}(X - \mu)] \text{ where } X \in \mathbb{R}^{n \times d} \text{, all diag entries $>$ 0}
 \end{aligned}$
 \\ \vspace{0.1cm}
  Symmetric, PSD $\implies\exists \Sigma=V\Lambda V^\top$ by Spectral Theorem.
 PD $\implies$ symmetric in this class. Eigenvectors are orthogonal directions along which points are uncorrelated. $\Sigma^{-1} = V \Lambda^{-1}V^{\top} = \sum_i \frac{1}{\Lambda_{ii}}v_iv_i^{\top}$
 
-\subsection{Spectral Theorem}
+\subsection{Spectral Theorem: $A=V\Lambda V^\top$}
 All real+symmetric $n \times n$ matrix has real eigenvalues and $n$ eigenvectors that are mutually orthogonal: $v_{i}^{\top} v_{j}=0 \quad  \forall i \neq j$.
 
 \subsection{Norm Ball}
@@ -400,15 +402,15 @@ $\ell_0$ and $\ell_1$ encourage sparsity (more than $\ell_2$).
 % TODO Rm above
  
 \subsection{Fundamental Theorem of Linear Algebra}
-\includegraphics[scale=0.10]{strang.png}
-$(N(A)^{\perp} = R(A^{\top})) \oplus (N(A) = R(A^{\top})^{\perp}) = \mathbb{R}^n$ \\
+\includegraphics[scale=0.10]{strang.png}\\
+$\small{(N(A)^{\perp} = R(A^{\top})) \oplus (N(A^\top A)=N(A) = R(A^{\top})^{\perp}) = \mathbb{R}^n}$ \\
     $(N(A^{\top})^{\perp} = R(A)) \oplus (N(A^{\top}) = R(A)^{\perp}) = \mathbb{R}^m$ \\
-Rank-nullity Theorem: dim($R(A)$) + dim($N(A)$) = $n$\\
-
-Jensen's Inequality: If $f(x)$ is strictly convex, $\E[f(x)]>f(\E[x])$. \\
-
+Rank-nullity Theorem: dim($R(A)$) + dim($N(A)$) = $n$
+\\
+Jensen's Inequality: If $f(x)$ is strictly convex, $\E[f(x)]>f(\E[x])$.
+\\
 $\dim(\Row(X))=\dim(R(X^\top))=\rank(X^\top)=\rank(X)$.
-
+$\Row(X^\top X)=R(X^\top X)=\Row(X)=R(X^\top)$
 \section{$\boxed{\text{Update Rule}}$}
 
 % \subsection{Font face}
@@ -419,16 +421,16 @@ Gradient Descent: & $w \leftarrow w - \epsilon \nabla_w J(w) $ \\
 Logistic Reg:& $w \leftarrow w + \epsilon X^{\top}(y - s(Xw))$ \\
 \hrule&\hrule\\
 Newton's Method: & $w \leftarrow w - (\nabla^2_w J(w))^{-1} \nabla_w J(w)$ \\
-*** Note: & If $J$ quadratic, Newton's method only needs one step to find exact solution. Newton's Method doesn't work for most nonsmooth functions, and is generally faster than SGD. \\
+*** Note: & If $J$ quadratic, Newton's method only needs one step to find exact solution. Newton's Method doesn't work for most nonsmooth functions, and is generally faster than BGD/SGD. \\
 \hrule&\hrule\\
 Stochastic GD: & $w \leftarrow w - \epsilon \nabla_w J(w)_i$ for some $i \in U([1, \dots, n])$ \\
-Logistic Reg: & $w \leftarrow w + \epsilon (y_i - s(X_i \cdot w))X_i$ \\
-\hrule&\hrule
+Logistic Reg: & $w \leftarrow w + \epsilon (y_i - s(X_i \cdot w))X_i$
 \end{tabular}
 
 
 
 \section{$\boxed{\text{Cost Functions}}$}
+$y_i = f(X_i) + \epsilon_i$: $\epsilon_i$ from Gaussian, all $\epsilon_i$ same mean, all $y_i$ same var
 \settowidth{\MyLen}{\texttt{.pagebreak} }
 \begin{tabular}{@{}p{\the\MyLen}%
                 @{}p{\linewidth-\the\MyLen}@{}}
@@ -449,7 +451,7 @@ Weight LS:  & $J = \sum_{i=1}^n w_i (X_i \cdot w - y_i)^2 = (Xw - y)^{\top} \Ome
                 @{}p{\linewidth-\the\MyLen}@{}}
 Centering:         &  subtracting $\mu^\top$ from each row of $X$: $X \xrightarrow{}\dot X$\\
 Decorrelating: & Applying rotation $Z = \dot X V$ where $\Var(X) = V \Lambda V^\top$. Covariance matrix of $Z$ is $\Lambda$ (diagonal)\\
-Sphering: & $W = \dot X \Var(X)^{-1/2}$ ($\Sigma^{-1/2}$ maps ellipsoids to spheres)\\
+Sphering: & $W = \dot X \Var(X)^{-1/2}$ ($\Sigma^{-1/2}$:ellipsoid to sphere)\\
 Whitening: & Perform centering, and then sphering \\
 \end{tabular}
 
@@ -502,14 +504,14 @@ Note: the model determines Bias-Variance Tradeoff, not the algorithm used to sol
 \begin{tabular}{@{}p{\the\MyLen}%
                 @{}p{\linewidth-\the\MyLen}@{}}
 Bayes vs. GDA & Bayes uses true mean/variance, while GDA uses sample mean/variance. True mean/variance equal $\not \Rightarrow$ Sample mean/variance equal\\
-\hrule&\hrule\\
+
 Cauchy-Schwarz &  $|\langle x, y \rangle | \leq \| x \| \cdot \| y \|$  \\
-\hrule&\hrule\\
+
 \text{Sigmoid Function}: \linebreak
 $s(\gamma) = \frac{1}{1 + e^{-\gamma}}$& Graph:
 \linebreak \includegraphics[width=\linewidth/2]{Sigmoid.png} \\
-\hrule&\hrule\\Unique Optimum & Only ridge regression has one unique optimum (not Least Squares, Lasso, or Logistic).
+Unique Optimum & Only ridge regression has one unique optimum (not Least Squares, Lasso, or Logistic).\\
+Training Data: & Training on less data can improve training accuracy, training on more data can improve validation/test accuracy.
 \end{tabular}
-
 \end{multicols}
 \end{document}
