@@ -8,6 +8,9 @@
 \usepackage{blkarray,booktabs}
 \usepackage{enumitem}
 \usepackage{graphicx}
+\usepackage{makecell}
+\usepackage{tabularx}
+
 
 % To make this come out properly in landscape mode, do one of the following
 % 1.
@@ -42,6 +45,7 @@
 \DeclareMathOperator*{\Cov}{Cov}
 \DeclareMathOperator*{\trace}{Tr}
 \DeclareMathOperator*{\argmax}{argmax}
+\DeclareMathOperator*{\argmin}{argmin}
 \DeclareMathOperator*{\supp}{supp}
 \newcommand{\innerprod}[2]{\langle #1, #2 \rangle}
 \newcommand{\deriv}[2]{\frac{\d #1}{\d #2}}
@@ -103,9 +107,9 @@
 \setlength{\multicolsep}{1pt}
 \setlength{\columnsep}{2pt}
 
-\begin{center}
-     \Large{\textbf{CS 189 Cheat Sheet}} \\
-\end{center}
+% \begin{center}
+%      \Large{\textbf{CS 189 Cheat Sheet}} \\
+% \end{center}
 
 \section{$\boxed{\text{Classification}}$}
 
@@ -178,7 +182,7 @@ the \textbf{priors} $\hat\pi_i=\Pr(Y=C_i)$ and \textbf{cond. dist} $\mathbb{P}(X
                 @{}p{\linewidth-\the\MyLen}@{}}
 %\begin{tabular}{@{}ll@{}}
 Logistic Function: & $\frac{1}{1 + e^{-h(x)}}, $ where $h(x)$ is \textbf{linear} in terms of features. True in LDA but not QDA (where $h(x)$ is quadratic).\\
-GDA: & Assumes each class models a Gaussian distribution. \linebreak $Q_C(x) = -\frac{\|x - \mu_C\|^2}{2 \sigma_C^2} - d \ln \sigma_C + \ln \pi_C$ \\
+GDA: & Assumes each class models a Gaussian distribution. \linebreak $Q_C(x) = -\frac{\|x - \mu_C\|^2}{2 \sigma_C^2} - d \ln \sigma_C + \ln \pi_C=\ln{\wrap(){\sqrt{2\pi}^d f_C(x)\pi_C}}=-\frac12(x-\mu_C)^\top\Sigma_C^{-1}(x-\mu_C)$ \\
 QDA:  &  Works with any number of classes; $\frac{d(d+3)}{2}+1$ params. \\
 LDA:  &  when variances are equal; $d+1$ params.\\
 \end{tabular}
@@ -190,6 +194,8 @@ Anisotropic:\\
 \quad QDA: $\widehat{\Sigma}_c = \frac{1}{n_c} \sum_{i : y_i = C}^{} (X_i - \widehat{\mu _c})(X_i - \widehat{\mu _c})^\top$\\
 \quad LDA: $\widehat{\Sigma} = \frac{1}{n} \sum_{C}^{}\sum_{i : y_i = C}^{} (X_i - \widehat{\mu _c})(X_i - \widehat{\mu _c})^T$
 
+\includegraphics[width=80mm]{whitening.png}
+
 
 \subsection{Discriminative}
 Want to learn a \textit{few} things before trying to classify.\\
@@ -199,7 +205,6 @@ For a training point, $P\left(Y=y_{i} \mid x\right)=p^{y_{i}}(1-p)^{1-y_{i}}$. N
 $$
 L(w)=-\sum y_{i} \left(\ln p_{i}+\left(1-y_{i}\right) \ln \left(1-p_{i}\right)\right)
 $$
-
 Note: $P(Y=1 \mid x)=\frac{1}{1+\exp \left(-w^{T} x\right)}$; $s^{\prime}(\gamma) = s(\gamma)(1 - s(\gamma))$ \\
 Decision Boundary: of the form $w^{T} x>c_{1}$ thus must be linear. Though probability predictions are non-linear, actual boundary is linear. Log Reg always separates linearly separable points. \\
 \textbf{Softmax Reg:} logistic regression for multiple classes 
@@ -213,7 +218,7 @@ $f_{\mathbf{X}}\left(x_{1}, \ldots, x_{k}\right)=\frac{\exp \left(-\frac{1}{2}(\
 We have $A, B, C, D$. 
 $P(A \mid B) > P(A \mid C) > P(A \mid D)\newline\implies B$ is the MLE of $A$. MLE Estimate of Anisotropic can be PSD.
 
-$\hat{\theta}_{MLE}(x) = \underset{\theta}{\text{arg max}} \ f(x \mid \theta) = \underset{\theta}{\text{arg max}} \ \mathcal{L}(\theta; x)$  \\
+$\hat{\theta}_{MLE}(x) = \underset{\theta}{\text{arg max}} \ \Pi f(x \mid \theta) = \underset{\theta}{\text{arg max}} \ln\mathcal{L}(\theta; x)$  \\
 Mean is unbiased; Variance is biased (usually underestimate)\\
 
 Predicts parameter which max the probability
@@ -313,8 +318,8 @@ r^{*}(x)=\left\{\begin{aligned}
 \section{$\boxed{\text{Regression Methods}}$}
 Model: $y = Xw$, Loss Function: least squares, $n \in N(X)$
 \vspace{-0.5cm}
-\begin{center}
-    \begin{tabular}{||c c c||} 
+% \begin{center}
+    \begin{tabular}{||c c p{0.3\linewidth}||} 
          \hline
          Name & Objective & Solution \\
          \hline
@@ -322,13 +327,14 @@ Model: $y = Xw$, Loss Function: least squares, $n \in N(X)$
          OLS & {\scriptsize $\frac1n\|Y-Xw\|_2^2$} & {\scriptsize $w^\ast=(X^\top X)^{\dagger} X^\top y \in X^{\dagger}y + n$} \\[0.4em] 
          \hline
          \rule{0pt}{3ex}
-         Ridge & {\scriptsize $\frac1n\|Y-Xw\|_2^2+\lambda \| w \|_2^2$} & {\scriptsize $w^\ast=(X^\top X + n\lambda I)^{-1} X^\top y$} \\[0.4em] 
+         \makecell{Ridge: Assumes \\Gaussian Priors} & {\scriptsize $\frac1n\|Y-Xw\|_2^2+\lambda \| w \|_2^2$} & {\scriptsize $w^\ast=(X^\top X + n\lambda I)^{-1} X^\top y$} \\[0.4em] 
          \hline
          \rule{0pt}{3ex}
          LASSO & {\scriptsize $\frac1n\|Y-Xw\|_2^2+\lambda \| w \|_1$} & No closed form \\ [1ex] 
          \hline
     \end{tabular}
-\end{center}
+% \end{center}
+\vspace{0.3cm}
 
 
 \section{$\boxed{\text{Linear Algebra}}$}
@@ -359,18 +365,20 @@ $$\nabla_{\vec w} \wrap(){\|X\vec w-\vec y\|_2^2+\lambda\|\vec w\|_2^2} = 2X^\to
 
 \subsection{Matrix $A$ is \underline{Positive Semi-Definite} iff}
 \begin{enumerate}[label=(\alph*)]
-    \item $\forall \vec x \neq \vec{0} \in \mathbb{R}^{n}, \vec x^{\top} A \vec x \geq 0$.
-    \item All eigenvalues of $A$ are non-negative.
+    \item $\forall \vec x \neq \vec{0} \in \mathbb{R}^{n}, \vec x^{\top} A \vec x \geq 0$. Symmetric.
+    \item All eigenvalues of $A$ are non-negative ($\lambda_i\ge0$).
     \item $\exists$ unique matrix $L \in \mathbb{R}^{n \times n}$ such that $A=L L^{\top}$ (Cholesky decomposition).
 \end{enumerate}
+PSD Example: $A=\begin{bmatrix}2&-1\\-1&2\end{bmatrix}$, with $\lambda=3,1$. $L=\begin{bmatrix}1&0\\-1&1\end{bmatrix}$.
+\\
 All diagonal entries of A are non-negative and $\trace(A)\geq0$. \\
-Sum of all the entries $\geq0$.\\
+Sum of all the entries $\geq0$. $\Var(Mx) = M\Var(x)M^T, M$ is constant.
+$M\succ0, N\succ0, M-N\succeq0\implies N^{-1}-M^{-1}\succeq0$\\
 $M\succeq0, N\succeq0\implies M-N\succeq0\iff\lambda_{\min}(M)>\lambda_{\max}(N)$.\\
-$A = A^{\frac{1}{2}}A^{\frac{1}{2}}$, $A^{\frac{1}{2}} = U \Lambda^{\frac{1}{2}}U^{\top}$  \\
+$A = A^{\frac{1}{2}}A^{\frac{1}{2}}=U \Lambda^{\frac{1}{2}}\Lambda^{\frac{1}{2}}U^{\top}$, $A^{\frac{1}{2}} = U \Lambda^{\frac{1}{2}}U^{\top}$  \\
 A function is convex iff Hessian is PSD. Strict Convexity: $(\forall 0<t<1), f(tx_1+(1-t)x_2)<tf(x_1)+(1-t)f(x_2)$
 
-
-\subsection{Covariance Matrix}
+\textbf{Covariance Matrix}
 $\begin{aligned}[t]\Sigma &=\frac{1}{n}\hat{X}^{\top}X = 
 %\begin{blockarray}{cc}
 %\begin{block}{[cc]}
@@ -390,17 +398,13 @@ $\begin{aligned}[t]\Sigma &=\frac{1}{n}\hat{X}^{\top}X =
  Symmetric, PSD $\implies\exists \Sigma=V\Lambda V^\top$ by Spectral Theorem.
 PD $\implies$ symmetric in this class. Eigenvectors are orthogonal directions along which points are uncorrelated. $\Sigma^{-1} = V \Lambda^{-1}V^{\top} = \sum_i \frac{1}{\Lambda_{ii}}v_iv_i^{\top}$
 
-\subsection{Spectral Theorem: $A=V\Lambda V^\top$}
-All real+symmetric $n \times n$ matrix has real eigenvalues and $n$ eigenvectors that are mutually orthogonal: $v_{i}^{\top} v_{j}=0 \quad  \forall i \neq j$.
+\textbf{Spectral Theorem: }$A=V\Lambda V^\top$.
+All real+symmetric $n \times n$ matrices have real eigenvalues and $n$ eigenvectors that are mutually orthogonal: $v_{i}^{\top} v_{j}=0 \quad  \forall i \neq j$.
 
 \subsection{Norm Ball}
 $\ell_0$ and $\ell_1$ encourage sparsity (more than $\ell_2$).
 \includegraphics[scale=0.2]{norms.png}
 
-
-% \newpage
-% TODO Rm above
- 
 \subsection{Fundamental Theorem of Linear Algebra}
 \includegraphics[scale=0.10]{strang.png}\\
 $\small{(N(A)^{\perp} = R(A^{\top})) \oplus (N(A^\top A)=N(A) = R(A^{\top})^{\perp}) = \mathbb{R}^n}$ \\
@@ -417,10 +421,10 @@ $\Row(X^\top X)=R(X^\top X)=\Row(X)=R(X^\top)$
 \settowidth{\MyLen}{\texttt{.begin.verbatim..} }
 \begin{tabular}{@{}p{\the\MyLen}%
                 @{}p{\linewidth-\the\MyLen}@{}}
-Gradient Descent: & $w \leftarrow w - \epsilon \nabla_w J(w) $ \\
-Logistic Reg:& $w \leftarrow w + \epsilon X^{\top}(y - s(Xw))$ \\
+Gradient Descent: & $w^{(t+1)} \leftarrow w^{(t)} - \eta \nabla_w J(w^{(t)}) $ \\
+Logistic Reg:& $w^{(t+1)} \leftarrow w^{(t)} + \epsilon X^{\top}\wrap(){y - s(Xw^{(t)})}$ \\
 \hrule&\hrule\\
-Newton's Method: & $w \leftarrow w - (\nabla^2_w J(w))^{-1} \nabla_w J(w)$ \\
+Newton's Method: & $w^{(t+1)} \leftarrow w^{(t)} - (\nabla^2_w J(w^{(t)}))^{-1} \nabla_w J(w^{(t)})$ \\
 *** Note: & If $J$ quadratic, Newton's method only needs one step to find exact solution. Newton's Method doesn't work for most nonsmooth functions, and is generally faster than BGD/SGD. \\
 \hrule&\hrule\\
 Stochastic GD: & $w \leftarrow w - \epsilon \nabla_w J(w)_i$ for some $i \in U([1, \dots, n])$ \\
@@ -500,7 +504,88 @@ Note: the model determines Bias-Variance Tradeoff, not the algorithm used to sol
  
  Gaussian with covariance matrix $\Sigma = \frac{1}{n} \hat{X}^{\top} \hat{X}$ isocontours with radii of length $\sqrt{\lambda_i(\Sigma)} = \sigma_i(X)$
 
+\section{$\boxed{\text{Decision Trees}}$}
+Tree with each node denoting a split over some feature. Leaf node specifies class.
+deep decision tree = overfit = high variance
+
+\section{$\boxed{\text{Random Forests}}$}
+At each node, take rnd sample of $m$ features (out of $d$).\\
+Classification: $m_{\text{init}}\approx\sqrt d$
+\\
+Regression: $m_{\text{init}}\approx\frac d3$
+\\
+Smaller $m$ = less features = less complex model = more bias
+
+\section{$\boxed{\text{Kernels}}$}
+Can speedup algorithms such as SVMs, $k$NN, Regression (linear \& logistic), $k$-means, etc.
+\\
+$w = X^\top a = \sum_{i=1}^n a_i X_i$
+Substitute this into the algorithm so we have to optimize $n$ weights $a$ instead of $d$ weights $w$ \\
+\textbf{Kernel Ridge Regression}: Center $X$ and $y$ so means are 0, $X_{i, d+1} = 1$. Solve normal equations: $(X^\top X + \lambda I)w = X^\top y$\\
+If $a$ is a solution to $(X^\top X + \lambda I) a = y$, $X^\top y = X^\top X X^\top a + \lambda X^\top a = (X^\top X + \lambda I) X^\top a \implies w = X^\top a$\\
+The dual: $\min ||X X^\top a - y||^2 + \lambda ||X^\top a||^2$\\
+Test phase: $h(z) = w^\top z = a^\top X z = \sum_{i=1}^n a_i(X_i^\top z)$, if $X_i^\top z$ are precomputed, it takes $O(n)$ time to evaluate $h$ vs $O(d)$ time for primal method. \\
+kernel fn: $k(x, z) = x^\top z$, kernel mtx: $K = X X^\top$ ($K_{ij} = k(X_i, X_j)$)\\
+kernel matrix must be PSD + symmetric
+\\
+Solve $(K+\lambda I)a=y$ $O(n^3)$, test $h(z) = \sum a_i k(X_i, z)$ $O(nd)$ time \\
+Dual: $O(n^3 + n^2 d)$, Primal: $O(d^3 + d^2 n)$, dual is better when $d>n$.\\
+\textbf{Kernel Trick}: Polynomial kernel = $k(x, z) = (x^\top z + 1)^p$ \\
+Can compute $k(x, z) = \Phi(x)^\top \Phi(z)$ in $O(d)$ time instead of $O(d^p)$\\
+Enables us to implicitly handle polynomial features efficiently \\
+\textbf{Kernel Perceptrons}:\\
+$w \leftarrow y_1 \Phi(X_1)$: while some $y_i \Phi(X_i) \cdot w < 0$, $w \leftarrow w + \epsilon y_i \Phi(X_i)$ \\
+for each test pt $z$, $h(z) \leftarrow w \cdot \Phi(z)$\\
+Let $\Phi(X)$ be $x \times D$ matrix with rows $\Phi(X_i)^\top$ \\
+Dualize with $w = \Phi(X)^\top a$, $a_i \leftarrow a_i + \epsilon y_i$, $h(z) = \sum_{i=1}^n a_j + k(X_{ij}, z)$ \\
+$\Phi(X_i) \cdot w = (\Phi(X) w)_i = (\Phi(X) \Phi(X)^\top a)_i = (Ka)_i$\\
+$a \leftarrow \begin{bmatrix}
+y_1 & 0 & \cdots & 0
+\end{bmatrix}^\top$: while some $y_i(Ka)_i < 0$, $a_i \leftarrow a_i + \epsilon y_i$\\
+$O(n^2 d)$ to kernel mtx $O(1)$ to update $a$, $O(n)$ to update $Ka$
+
+\section{$\boxed{\text{Learning Theory}}$}
+Range Space (P, H):
+P = set of all possible train/test pts (ex. $\mathbb R^d$)
+\\
+H = set of all possible hypotheses
+Dichotomy: split of input data into two separate classes, not necessarily linear decision boundary. 
+Shatter Function: $\Pi_H(X)=|\{X\cap h:h\in H\}|$ = maximum number of dichotomies hypothesis class $H$ can produce in particular set of points $X$.
+$\displaystyle\Pi_{H}(n)=\max _{|X|=n, X \subseteq P} \Pi_{H}(X)$= maximum number of dichotomies hypothesis class $H$ can produce amongst a set of $n$ data points and is only ever $2^n$ (known as shattering) or polynomial in $n$.
+
+VC Dimension = the largest number of points $D$ s.t. $\Pi_H(D) = 2^n$. Basically largest number of points a hypothesis class can produce all dichotomies of. Can be infinite, can be $0$.
+A linear perceptron classifier with $d$ parameters ($d$-dimensional weight vectors) has a VC dimension of $d$. For example, 2$d$ linear perceptron (three weights - one for each dimension and one fictitious dimension = bias) has VC dimension of 3.
+
+\section{$\boxed{\text{AdaBoost}}$}
+Ensemble method that trains multiple learns on weighted sample points and weights learner. (misclassified points = increased weights, accurate learners = increased weights). Find classifier $G_T$ and coefficient $\beta_T$ to minimize\\
+$\text{Risk} = \frac{1}{n} \sum_{i=1}^n L(M(X_i), y_i)$ with $M(X_i) = \sum_{t=1}^T \beta_t G_t(X_i)$\\ 
+AdaBoost metalearner uses $L(\rho, \ell) = e^{-\rho \ell}$
+$w_i^{(T + 1)} = w_i^{(T)} \exp(-\beta_T \, y_i \, G_T(X_i))$, $\beta_T = \frac{1}{2}\ln \bigg(\frac{1 - \mathrm{err}_T}{\mathrm{err}_T}\bigg)$
+$\mathrm{err}_T = \frac{\sum_{y_i \neq G_T(X_i)}w_i^{(T)}}{\sum_{i = 1}^n w_i^{(T)}}.$ metalearner: $h(z) = \mathrm{sign}(\sum_{t=1}^T \beta_t G_t(z))$
+
+\section{$\boxed{\text{Neural Nets}}$}
+Multi-layered perceptron, each layer puts outputs of previous layer linear function and then activation function. Minimize loss via gradient descent
+
+\section{$\boxed{\text{Principal Component Analysis}}$}
+PCA only makes linear relations.
+Low-rank approximation is lossy feature selection: you lose lower variance components yet select out low-singular values (often ``noise" components)
+\\
+$XX^\top$
+
+\section{$\boxed{\text{Clustering}}$}
+NP-hard: find $\argmin_y \sum_{i=1}^k \sum_{y_j=i} ||X_j -\mu_i||^2$\\
+K-means: alternate between fixed $y_j$'s update $\mu_i$'s and vice versa. Halt when step 2 changes no assignments. Both steps decrease objective fn unless they change nothing; alg must terminate.\\
+Initialization: Forgy method (choose $k$ random points to be centroids). Can also use the (worse) random partitions - randomly assign each point to a cluster.
+K-medioids: K-means, but instead of using mean, use medioid, sample point minimizing total distance to other points in cluster.\\
+Hierarchical clustering: creates a tree, every subtree is a cluster. Bottom-up (agglomerative) start with each point a cluster; repeatedly fuse pairs minimizing $d(A, B)$. Linkage functions: \\
+complete: $d(A, B) = \max \{ d(w, x) : w \in A, x \in B \}$\\
+single: $d(A, B) = \min \{d(w, x): w \in A, x \in B \}$\\
+average:  $d(A, B) = \frac{1}{|A||B|}\sum_{w \in A} \sum_{x \in B} dist(w, x)$\\
+centroid: $d(A, B) = dist(\mu_A, \mu_B)$\\
+Top-down (divisive) starts with single cluster, repeatedly splits
+
 \section{$\boxed{\text{Miscellaneous}}$}
+NP-Hard to find optimal linear classifier
 \begin{tabular}{@{}p{\the\MyLen}%
                 @{}p{\linewidth-\the\MyLen}@{}}
 Bayes vs. GDA & Bayes uses true mean/variance, while GDA uses sample mean/variance. True mean/variance equal $\not \Rightarrow$ Sample mean/variance equal\\
@@ -511,7 +596,8 @@ Cauchy-Schwarz &  $|\langle x, y \rangle | \leq \| x \| \cdot \| y \|$  \\
 $s(\gamma) = \frac{1}{1 + e^{-\gamma}}$& Graph:
 \linebreak \includegraphics[width=\linewidth/2]{Sigmoid.png} \\
 Unique Optimum & Only ridge regression has one unique optimum (not Least Squares, Lasso, or Logistic).\\
-Training Data: & Training on less data can improve training accuracy, training on more data can improve validation/test accuracy.
+Training Data: & Training on less data can improve training accuracy, training on more data can improve validation/test accuracy.\\
 \end{tabular}
 \end{multicols}
+$\ln(ab)=\ln(a)+\ln(b);\quad a^{x+y}=a^x\cdot a^y$
 \end{document}
