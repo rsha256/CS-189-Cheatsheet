@@ -10,7 +10,7 @@
 \usepackage{graphicx}
 \usepackage{makecell}
 \usepackage{tabularx}
-
+%wholesome
 
 % To make this come out properly in landscape mode, do one of the following
 % 1.
@@ -182,8 +182,8 @@ the \textbf{priors} $\hat\pi_i=\Pr(Y=C_i)$ and \textbf{cond. dist} $\mathbb{P}(X
                 @{}p{\linewidth-\the\MyLen}@{}}
 %\begin{tabular}{@{}ll@{}}
 Logistic Function: & $\frac{1}{1 + e^{-h(x)}}, $ where $h(x)$ is \textbf{linear} in terms of features. True in LDA but not QDA (where $h(x)$ is quadratic).\\
-GDA: & Assumes each class models a Gaussian distribution. \linebreak $Q_C(x) = -\frac{\|x - \mu_C\|^2}{2 \sigma_C^2} - d \ln \sigma_C + \ln \pi_C=\ln{\wrap(){\sqrt{2\pi}^d f_C(x)\pi_C}}=-\frac12(x-\mu_C)^\top\Sigma_C^{-1}(x-\mu_C)$ \\
-QDA:  &  Works with any number of classes; $\frac{d(d+3)}{2}+1$ params. \\
+GDA: & Assumes each class models a Gaussian distribution. \\
+QDA:  &  Works with any number of classes; $\frac{d(d+3)}{2}+1$ params.\\
 LDA:  &  when variances are equal; $d+1$ params.\\
 \end{tabular}
 Isotropic:\\
@@ -192,20 +192,21 @@ Isotropic:\\
 
 Anisotropic:\\
 \quad QDA: $\widehat{\Sigma}_c = \frac{1}{n_c} \sum_{i : y_i = C}^{} (X_i - \widehat{\mu _c})(X_i - \widehat{\mu _c})^\top$\\
-\quad LDA: $\widehat{\Sigma} = \frac{1}{n} \sum_{C}^{}\sum_{i : y_i = C}^{} (X_i - \widehat{\mu _c})(X_i - \widehat{\mu _c})^T$
-
-\includegraphics[width=80mm]{whitening.png}
-
-
+\quad LDA: $\widehat{\Sigma} = \frac{1}{n} \sum_{C}^{}\sum_{i : y_i = C}^{} (X_i - \widehat{\mu _c})(X_i - \widehat{\mu _c})^T$ \\ \vspace{8mm}
+Choose $C$ to maximize discriminant: \\ QDA: $Q_C=-\frac{1}{2}\left(x-\mu_{\mathrm{C}}\right)^{\top} \Sigma_{\mathrm{C}}^{-1}\left(x-\mu_{\mathrm{C}}\right)-\frac{1}{2} \ln \left|\Sigma_{\mathrm{C}}\right|+\ln \pi_{\mathrm{C}}$ \\ LDA: $Q_C=\mu_{\mathrm{C}}^{\top} \Sigma^{-1} x-\frac{\mu_{\mathrm{C}}^{\top} \Sigma^{-1} \mu_{\mathrm{C}}}{2}+\ln \pi_{\mathrm{C}}$
+\includegraphics[width=90mm]{whitening.png}
 \subsection{Discriminative}
 Want to learn a \textit{few} things before trying to classify.\\
 Only tries to model $\P(Y|X)$ from training data.\\
 \textbf{Logistic Reg} (2 classes):
 For a training point, $P\left(Y=y_{i} \mid x\right)=p^{y_{i}}(1-p)^{1-y_{i}}$. Note that $p=s\left(w^{T} x\right)$ as given by our model of the posterior $P(Y=1 \mid x)$. MLE on this leads to the cross entropy loss function (which is convex!), namely
 $$
-L(w)=-\sum y_{i} \left(\ln p_{i}+\left(1-y_{i}\right) \ln \left(1-p_{i}\right)\right)
+L(w)=-\sum \Big(y_{i} \ln p_{i}+\left(1-y_{i}\right) \ln \left(1-p_{i}\right)\Big)
 $$
 Note: $P(Y=1 \mid x)=\frac{1}{1+\exp \left(-w^{T} x\right)}$; $s^{\prime}(\gamma) = s(\gamma)(1 - s(\gamma))$ \\
+\text{Sigmoid Function}: 
+$s(\gamma) = \frac{1}{1 + e^{-\gamma}}$
+\includegraphics[width=\linewidth, height = 1.7 in]{Sigmoid1.png}
 Decision Boundary: of the form $w^{T} x>c_{1}$ thus must be linear. Though probability predictions are non-linear, actual boundary is linear. Log Reg always separates linearly separable points. \\
 \textbf{Softmax Reg:} logistic regression for multiple classes 
 
@@ -239,7 +240,7 @@ Should be used when you have the prior probabilities.
 MLE = MAP when all parameters have equal prior probability.
 \\
 The axis lengths of Gaussian Isocontours are $\sigma_i$ s.t. $\sigma^2(X)=\Var(X)$.
-Independent $\Longleftrightarrow$ uncorrelated (only for Multivariate Gaussian).
+Independent $\Longleftrightarrow$ uncorrelated (only for MVGs).
 
 
 
@@ -250,18 +251,15 @@ $L$ (loss function) is symmetric: pick class with max posterior prob.
 $L$ is asymmetric: minimize $\E[L(\text{true class}, \text{prediction}) \mid \text{data}]$ or pick max loss-weighted posterior prob.
 \\
 
-The risk for $r$ is the expected loss over all values of $x, y$. Equals to 0 when class distros don't overlap or prior prob for one class is 1.
-{\small
+The risk for $r$ is the expected loss over all values of $x, y$. Equals to 0 when class distros don't overlap or prior prob for one class is 1. Let $C$ be the set of classes $Y$ can take.
+{
   \begin{align*}
     R(r) &=\E[L(r(X), Y)] \\
-    &=\sum_{x}\wrap(){\sum_{c\in\{-1,1\}} L(r(x), c) P(Y=c \mid X=x)} P(X=x) \\
-    &=\sum_{c\in\{-1,1\}}\wrap(){ P(Y=c) \sum_{x} L(r(x), c) P(X=x \mid Y=c)}
+    &=\sum_{x}\wrap(){\sum_{c\in C} L(r(x), c) P(Y=c \mid X=x)} P(X=x) \\
+    &=\sum_{c\in C}\wrap(){ P(Y=c) \sum_{x} L(r(x), c) P(X=x \mid Y=c)} \\
+    &= R(\hat{y}=i \mid x)=\sum_{j=1}^{n} \lambda_{i j} P(Y=j \mid x)
   \end{align*}
 }
-\[
-    R(\hat{y}=i \mid x)=\sum_{j=1}^{C} \lambda_{i j} P(Y=j \mid x)
-\]
-
 The Bayes decision rule aka Bayes classifier is the fn $r^{*}$ that minimizes functional $R(r)$. Assuming $L(z, y)=0$ for $z=y$:
 {\scriptsize \[
 r^{*}(x)=\left\{\begin{aligned}
@@ -269,8 +267,6 @@ r^{*}(x)=\left\{\begin{aligned}
 -1 & \text { otherwise }
 \end{aligned}\right.
 \]}
-
-
 %---------------------------------------------------------------------------
 % \newcommand{\FontCmd}[3]{\PBS\verb!\#1{!\textit{text}\verb!}!  \> %
 %                          \verb!{\#2 !\textit{text}\verb!}! \> %
@@ -314,7 +310,6 @@ r^{*}(x)=\left\{\begin{aligned}
 %                                                         & %
 %         \underline{Underline}
 % \end{tabular}
-
 \section{$\boxed{\text{Regression Methods}}$}
 Model: $y = Xw$, Loss Function: least squares, $n \in N(X)$
 \vspace{-0.5cm}
@@ -406,7 +401,7 @@ $\ell_0$ and $\ell_1$ encourage sparsity (more than $\ell_2$).
 \includegraphics[scale=0.2]{norms.png}
 
 \subsection{Fundamental Theorem of Linear Algebra}
-\includegraphics[scale=0.10]{strang.png}\\
+\includegraphics[scale=0.1]{strang.png}\\
 $\small{(N(A)^{\perp} = R(A^{\top})) \oplus (N(A^\top A)=N(A) = R(A^{\top})^{\perp}) = \mathbb{R}^n}$ \\
     $(N(A^{\top})^{\perp} = R(A)) \oplus (N(A^{\top}) = R(A)^{\perp}) = \mathbb{R}^m$ \\
 Rank-nullity Theorem: dim($R(A)$) + dim($N(A)$) = $n$
@@ -486,7 +481,7 @@ $\begin{aligned}[t] \text{Model Risk} &=\E[L(h(z), \gamma)]
 
 Note: the model determines Bias-Variance Tradeoff, not the algorithm used to solve the model/optimization problem.
 
-\includegraphics[width=\linewidth]{Bias-Variance.png}
+\includegraphics[height = 1.6 in]{Bias-Variance.png}
 
 % todo add bias var tradeoff diagarm
 
@@ -499,15 +494,27 @@ Note: the model determines Bias-Variance Tradeoff, not the algorithm used to sol
  \textbf{LDA:} same variance; decision boundary is linear & \textbf{QDA:} different variance; decision boundary is curved towards class(es) w/ lower variance 
 \end{tabular} \vspace{0.5em} 
 \hrule \vspace{0.5em}
- \includegraphics[width=\linewidth]{Quadratic_Isosurface.png}
+ \includegraphics[height = 1 in]{Quadratic_Isosurface.png}
+ 
  Quadratic Form: $x^{\top}A^{-2}x = \| A^{-1}x\|_2^2$ is an ellipsoid with axes $v_1, v_2, \dots v_n$ (eigenvectors of $A$) and radii $\lambda_1, \lambda_2, \dots, \lambda_n$ (eigenvalues of $A$). Note that $A > 0$.
  
  Gaussian with covariance matrix $\Sigma = \frac{1}{n} \hat{X}^{\top} \hat{X}$ isocontours with radii of length $\sqrt{\lambda_i(\Sigma)} = \sigma_i(X)$
 
 \section{$\boxed{\text{Decision Trees}}$}
-Tree with each node denoting a split over some feature. Leaf node specifies class.
-deep decision tree = overfit = high variance
-
+Tree with each node denoting a split over some feature. Leaf node specifies class. 
+deep decision tree = overfit = high variance \\
+Calculate entropy (2 classes $C,D$): $H(S)=-\sum_{\mathrm{C}} p_{\mathrm{C}} \log _2 p_{\mathrm{C}}$ \\ 
+$p_{\mathrm{C}}=\frac{\left|\left\{i \in S: y_i=\mathrm{C}\right\}\right|}{|S|}$.\\ Choose split that maximizes information gain $H(S)-H_{\mathrm{after}}=H(S)-\frac{\left|S_l\right| H\left(S_l\right)+\left|S_r\right| H\left(S_r\right)}{\left|S_l\right|+\left|S_r\right|}.$
+\\
+Classification: worst case $O(depth),$ often $O(\log n)$\\
+Training: $O(nd),$ at each split point try $O(d)$ splits.\\
+Regression: Leaf stores label $\mu_S=\frac{1}{|S|} \sum_{i \in S} y_i$\\
+Cost $J(S)=\operatorname{Var}\left(\left\{y_i: i \in S\right\}\right)=\frac{1}{|S|} \sum_{i \in S}\left(y_i-\mu_S\right)^2$\\
+Stop early: reasons: speed, pure leaves (i.e. complete alg) overfits. use: check node and use majority (mean for regression).\\
+Pruning: greedily remove split whose removal improves validation performance. more reliable than stopping.\\
+\textbf{Bagging:} run learning algorithm on random subsamples of training set (weak learner). regression: take average, class: take majority.\\
+Minimize bias as much as possible - averaging reduces variance/overfit. Bagging worse for kNN.
+% \tiny{Credits: Jonny Pei, Elden Ren, Jainil Shah, Rahul Shah}
 \section{$\boxed{\text{Random Forests}}$}
 At each node, take rnd sample of $m$ features (out of $d$).\\
 Classification: $m_{\text{init}}\approx\sqrt d$
@@ -530,7 +537,7 @@ kernel matrix must be PSD + symmetric
 \\
 Solve $(K+\lambda I)a=y$ $O(n^3)$, test $h(z) = \sum a_i k(X_i, z)$ $O(nd)$ time \\
 Dual: $O(n^3 + n^2 d)$, Primal: $O(d^3 + d^2 n)$, dual is better when $d>n$.\\
-\textbf{Kernel Trick}: Polynomial kernel = $k(x, z) = (x^\top z + 1)^p$ \\
+\textbf{Kernel Trick}: Polynomial kernel = $k(x, z) = (x^\top z + 1)^p$ \\ Gaussian kernel = $k(x, z)=\exp \left(-\frac{\|x-z\|^2}{2 \sigma^2}\right)$\\
 Can compute $k(x, z) = \Phi(x)^\top \Phi(z)$ in $O(d)$ time instead of $O(d^p)$\\
 Enables us to implicitly handle polynomial features efficiently \\
 \textbf{Kernel Perceptrons}:\\
@@ -561,16 +568,23 @@ Ensemble method that trains multiple learns on weighted sample points and weight
 $\text{Risk} = \frac{1}{n} \sum_{i=1}^n L(M(X_i), y_i)$ with $M(X_i) = \sum_{t=1}^T \beta_t G_t(X_i)$\\ 
 AdaBoost metalearner uses $L(\rho, \ell) = e^{-\rho \ell}$
 $w_i^{(T + 1)} = w_i^{(T)} \exp(-\beta_T \, y_i \, G_T(X_i))$, $\beta_T = \frac{1}{2}\ln \bigg(\frac{1 - \mathrm{err}_T}{\mathrm{err}_T}\bigg)$
-$\mathrm{err}_T = \frac{\sum_{y_i \neq G_T(X_i)}w_i^{(T)}}{\sum_{i = 1}^n w_i^{(T)}}.$ metalearner: $h(z) = \mathrm{sign}(\sum_{t=1}^T \beta_t G_t(z))$
-
+$\mathrm{err}_T = \frac{\sum_{y_i \neq G_T(X_i)}w_i^{(T)}}{\sum_{i = 1}^n w_i^{(T)}}.$ metalearner: $h(z) = \mathrm{sign}(\sum_{t=1}^T \beta_t G_t(z))$\\
+AdaBoost reduces bias, but effect on variance is hard to figure out (may sometimes overfit).
 \section{$\boxed{\text{Neural Nets}}$}
-Multi-layered perceptron, each layer puts outputs of previous layer linear function and then activation function. Minimize loss via gradient descent
-
+Multi-layered perceptron, each layer puts outputs of previous layer linear function and then activation function. Minimize loss via gradient descent \\
+Naive: $O(e^2)$, Backprop: $O(e).$\\
+Solve vanishing gradient problem: use ReLU activation $r(\gamma)=\max \{0, \gamma\}$
+Softmax activation: $
+z_i(t)=\frac{e^{t_i}}{\sum_{j=1}^k e^{t_j}};z_i \in(0,1) ; \sum_{i=1}^k z_i=1$\\ Use cross entropy instead of squared loss; $k$-class softmax output, cross-entropy: $L(z, y)=-\sum_{i=1}^k y_i \ln z_i$ \\ $\nabla_W L=(z-y) h^{\top},$ $
+\nabla_h L =W^{\top}(z-y)
+$\\
+CNNs: local connectivity and filter - perform convolution of small patches of image.
 \section{$\boxed{\text{Principal Component Analysis}}$}
-PCA only makes linear relations.
+Goal: find directions with highest variance\\
+Sol: Use SVD to decompose matrix and find eigenvectors for greatest singular values; same as finding Rayleigh quotients.\\
 Low-rank approximation is lossy feature selection: you lose lower variance components yet select out low-singular values (often ``noise" components)
-\\
-$XX^\top$
+% \\
+% $XX^\top$
 
 \section{$\boxed{\text{Clustering}}$}
 NP-hard: find $\argmin_y \sum_{i=1}^k \sum_{y_j=i} ||X_j -\mu_i||^2$\\
@@ -591,15 +605,10 @@ NP-Hard to find optimal linear classifier
 Bayes vs. GDA & Bayes uses true mean/variance, while GDA uses sample mean/variance. True mean/variance equal $\not \Rightarrow$ Sample mean/variance equal\\
 
 Cauchy-Schwarz &  $|\langle x, y \rangle | \leq \| x \| \cdot \| y \|$  \\
-
-\text{Sigmoid Function}: \linebreak
-$s(\gamma) = \frac{1}{1 + e^{-\gamma}}$& Graph:
-\linebreak \includegraphics[width=\linewidth/2]{Sigmoid.png} \\
 Unique Optimum & Only ridge regression has one unique optimum (not Least Squares, Lasso, or Logistic).\\
-Training Data: & Training on less data can improve training accuracy, training on more data can improve validation/test accuracy.\\
+Training Data: & Training on less data can improve train acc, training on more data can improve val/test acc.\\
 \end{tabular}
+\tiny{Credits: Jonny Pei, Elden Ren, Jainil Shah, Rahul Shah}
 \end{multicols}
-$\ln(ab)=\ln(a)+\ln(b);\quad a^{x+y}=a^x\cdot a^y$
-\\
-Credits: Jonny Pei, Elden Ren, Jainil Shah, Rahul Shah
+%$\ln(ab)=\ln(a)+\ln(b);\quad a^{x+y}=a^x\cdot a^y$
 \end{document}
